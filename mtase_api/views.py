@@ -13,6 +13,8 @@ from .serializers import FileSerializer, TextSerializer
 from django.conf import settings
 from pathlib import Path
 
+from .translate import detect_and_translate
+
 import os
 import logging
 
@@ -38,9 +40,9 @@ class SummariseAnalyseView(generics.GenericAPIView):
                 txt_folder_path = Path(settings.MEDIA_ROOT)
                 file_to_read = txt_folder_path / filename
 
-                with open(file_to_read) as f:
+                with open(file_to_read, encoding='utf8') as f:
                     contents = f.read()
-                    print(contents)
+                    # print(contents)
                     text = contents
 
                 if os.path.exists(file_to_read):
@@ -48,9 +50,12 @@ class SummariseAnalyseView(generics.GenericAPIView):
                 else:
                     logging.warning("The file does not exist")
 
+        translated_text = detect_and_translate(text, target_lang='en')
+
 
         return Response({
-                        "text": text
+                        "text": text,
+                        "translated_text": translated_text,
                       }, status=status.HTTP_201_CREATED)
 
 
