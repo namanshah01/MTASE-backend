@@ -14,6 +14,7 @@ from django.conf import settings
 from pathlib import Path
 
 from .translate import detect_and_translate
+from .extractive_summariser import extractive_summariser
 
 import os
 import logging
@@ -42,7 +43,6 @@ class SummariseAnalyseView(generics.GenericAPIView):
 
                 with open(file_to_read, encoding='utf8') as f:
                     contents = f.read()
-                    # print(contents)
                     text = contents
 
                 if os.path.exists(file_to_read):
@@ -51,12 +51,31 @@ class SummariseAnalyseView(generics.GenericAPIView):
                     logging.warning("The file does not exist")
 
         translated_text = detect_and_translate(text, target_lang='en')
+        
+        if(translated_text == ""):
+            extractive_summary = extractive_summariser(text)
+            translated_text_len = 0
+        else:
+            extractive_summary = extractive_summariser(translated_text)
+            translated_text_len = len(translated_text.split())
+
+        text_len = len(text.split())
+        extractive_summary_len = len(extractive_summary.split())
 
 
-        return Response({
-                        "text": text,
-                        "translated_text": translated_text,
-                      }, status=status.HTTP_201_CREATED)
+        return Response(
+                        {
+                            "len": {
+                                "text_len": text_len,
+                                "translated_text_len": translated_text_len,
+                                "extractive_summary_len": extractive_summary_len,
+                            },
+                            "text": {
+                                "text": text,
+                                "translated_text": translated_text,
+                                "extractive_summary": extractive_summary,
+                            }
+                        }, status=status.HTTP_201_CREATED)
 
 
 
