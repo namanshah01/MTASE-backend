@@ -1,4 +1,5 @@
 import nltk
+nltk.download('stopwords')
 import re
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -25,7 +26,6 @@ def low_rank_svd(matrix, singular_count=2):
     return u, s, vt
 
 def extractive_summariser(DOCUMENT):
-    nltk.download('stopwords')
     nltk.download('punkt')
 
     DOCUMENT = re.sub(r'\n|\r', ' ', DOCUMENT)
@@ -48,9 +48,8 @@ def extractive_summariser(DOCUMENT):
 
     pd.DataFrame(np.round(td_matrix, 2), index=vocab)
 
-
-    num_sentences = 5
-    num_topics = 5
+    num_sentences = 2
+    num_topics = 2
 
     u, s, vt = low_rank_svd(td_matrix, singular_count=num_topics)  
 
