@@ -48,8 +48,21 @@ def extractive_summariser(DOCUMENT):
 
     pd.DataFrame(np.round(td_matrix, 2), index=vocab)
 
-    num_sentences = 2
+    l = len(sentences)
+
+    num_sentences = 0
     num_topics = 2
+    
+    if(l < 10):
+        num_sentences = 2
+    elif(l < 50):
+        num_sentences = 5
+    elif(l < 500):
+        num_sentences = 10
+    elif(l < 1000):
+        num_sentences = 15
+    else:
+        num_sentences = 20
 
     u, s, vt = low_rank_svd(td_matrix, singular_count=num_topics)  
 
