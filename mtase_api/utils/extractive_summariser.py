@@ -21,7 +21,7 @@ def normalize_document(doc):
     doc = ' '.join(filtered_tokens)
     return doc
 
-def low_rank_svd(matrix, singular_count=2):
+def low_rank_svd(matrix, singular_count):
     u, s, vt = svds(matrix, k=singular_count)
     return u, s, vt
 
@@ -33,7 +33,6 @@ def extractive_summariser(DOCUMENT):
     DOCUMENT = DOCUMENT.strip()
 
     sentences = nltk.sent_tokenize(DOCUMENT)
-
 
     normalize_corpus = np.vectorize(normalize_document)
 
@@ -49,6 +48,9 @@ def extractive_summariser(DOCUMENT):
     pd.DataFrame(np.round(td_matrix, 2), index=vocab)
 
     l = len(sentences)
+
+    if(l <= 2):
+        return ("\n".join(np.array(sentences)))
 
     num_sentences = 0
     num_topics = 2
