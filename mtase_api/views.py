@@ -14,7 +14,8 @@ from django.conf import settings
 from pathlib import Path
 
 from .translate import detect_and_translate
-from .extractive_summariser import extractive_summariser
+from .utils.extractive_summariser import extractive_summariser
+from .utils.keyword_extractor import keyword_extractor
 
 import os
 import logging
@@ -52,10 +53,14 @@ class SummariseAnalyseView(generics.GenericAPIView):
 
         translated_text = detect_and_translate(text, target_lang='en')
         
+        keywords = []
+
         if(translated_text == ""):
             extractive_summary = extractive_summariser(text)
+            keywords = keyword_extractor(text)
             translated_text_len = 0
         else:
+            keywords = keyword_extractor(translated_text)
             extractive_summary = extractive_summariser(translated_text)
             translated_text_len = len(translated_text.split())
 
@@ -74,7 +79,8 @@ class SummariseAnalyseView(generics.GenericAPIView):
                                 "text": text,
                                 "translated_text": translated_text,
                                 "extractive_summary": extractive_summary,
-                            }
+                            },
+                            "keywords": keywords
                         }, status=status.HTTP_201_CREATED)
 
 
