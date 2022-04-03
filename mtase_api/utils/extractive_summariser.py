@@ -53,7 +53,6 @@ def extractive_summariser(DOCUMENT):
         return ("\n".join(np.array(sentences)))
 
     num_sentences = 0
-    num_topics = 2
     
     # if(l < 10):
     #     num_sentences = 2
@@ -77,7 +76,7 @@ def extractive_summariser(DOCUMENT):
     else:
         num_sentences = 72
 
-    u, s, vt = low_rank_svd(td_matrix, singular_count=num_topics)  
+    u, s, vt = low_rank_svd(td_matrix)  
 
     term_topic_mat, singular_values, topic_document_mat = u, s, vt
 
