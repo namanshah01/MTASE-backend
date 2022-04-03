@@ -13,7 +13,11 @@ from .serializers import FileSerializer, TextSerializer
 from django.conf import settings
 from pathlib import Path
 
-from .translate import detect_and_translate
+import iso639
+from langdetect import detect
+
+
+from .utils.translate import detect_and_translate
 from .utils.extractive_summariser import extractive_summariser
 from .utils.keyword_extractor import keyword_extractor
 from .utils.abstractive_summariser import abstractive_summariser
@@ -52,6 +56,8 @@ class SummariseAnalyseView(generics.GenericAPIView):
                 else:
                     logging.warning("The file does not exist")
 
+        original_lang = iso639.to_name(detect(text))
+
         translated_text = detect_and_translate(text, target_lang='en')
         
         keywords = []
@@ -86,7 +92,8 @@ class SummariseAnalyseView(generics.GenericAPIView):
                                 "abstractive_summary": abstractive_summary,
                                 "extractive_summary": extractive_summary,
                             },
-                            "keywords": keywords
+                            "keywords": keywords,
+                            "original_lang": original_lang
                         }, status=status.HTTP_201_CREATED)
 
 
