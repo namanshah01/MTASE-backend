@@ -13,9 +13,14 @@ from .serializers import FileSerializer, TextSerializer
 from django.conf import settings
 from pathlib import Path
 
-from .translate import detect_and_translate
+import iso639
+from langdetect import detect
+
+
+from .utils.translate import detect_and_translate
 from .utils.extractive_summariser import extractive_summariser
 from .utils.keyword_extractor import keyword_extractor
+from .utils.abstractive_summariser import abstractive_summariser
 
 import os
 import logging
@@ -51,20 +56,25 @@ class SummariseAnalyseView(generics.GenericAPIView):
                 else:
                     logging.warning("The file does not exist")
 
+        original_lang = iso639.to_name(detect(text))
+
         translated_text = detect_and_translate(text, target_lang='en')
         
         keywords = []
 
         if(translated_text == ""):
+            abstractive_summary = abstractive_summariser(text)
             extractive_summary = extractive_summariser(text)
             keywords = keyword_extractor(text)
             translated_text_len = 0
         else:
-            keywords = keyword_extractor(translated_text)
+            abstractive_summary = abstractive_summariser(translated_text)
             extractive_summary = extractive_summariser(translated_text)
+            keywords = keyword_extractor(translated_text)
             translated_text_len = len(translated_text.split())
 
         text_len = len(text.split())
+        abstractive_summary_len = len(abstractive_summary.split())
         extractive_summary_len = len(extractive_summary.split())
 
 
@@ -73,14 +83,17 @@ class SummariseAnalyseView(generics.GenericAPIView):
                             "len": {
                                 "text_len": text_len,
                                 "translated_text_len": translated_text_len,
+                                "abstractive_summary_len": abstractive_summary_len,
                                 "extractive_summary_len": extractive_summary_len,
                             },
                             "text": {
                                 "text": text,
                                 "translated_text": translated_text,
+                                "abstractive_summary": abstractive_summary,
                                 "extractive_summary": extractive_summary,
                             },
-                            "keywords": keywords
+                            "keywords": keywords,
+                            "original_lang": original_lang
                         }, status=status.HTTP_201_CREATED)
 
 
