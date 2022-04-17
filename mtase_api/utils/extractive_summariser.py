@@ -76,7 +76,7 @@ def extractive_summariser(DOCUMENT):
     else:
         num_sentences = 72
 
-    u, s, vt = low_rank_svd(td_matrix)  
+    u, s, vt = low_rank_svd(td_matrix, 2)  
 
     term_topic_mat, singular_values, topic_document_mat = u, s, vt
 
