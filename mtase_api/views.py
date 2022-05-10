@@ -59,6 +59,7 @@ class SummariseAnalyseView(generics.GenericAPIView):
         original_lang = iso639.to_name(detect(text))
 
         translated_text = detect_and_translate(text, target_lang='en')
+        reverse_translation = ""
         
         keywords = []
 
@@ -72,6 +73,9 @@ class SummariseAnalyseView(generics.GenericAPIView):
             extractive_summary = extractive_summariser(translated_text)
             keywords = keyword_extractor(translated_text)
             translated_text_len = len(translated_text.split())
+            tran_lang = detect(text)
+            abs_reverse_translation = detect_and_translate(abstractive_summary, target_lang=tran_lang)
+            ext_reverse_translation = detect_and_translate(extractive_summary, target_lang=tran_lang)
 
         text_len = len(text.split())
         abstractive_summary_len = len(abstractive_summary.split())
@@ -89,6 +93,8 @@ class SummariseAnalyseView(generics.GenericAPIView):
                             "text": {
                                 "text": text,
                                 "translated_text": translated_text,
+                                "abs_reverse_translation": abs_reverse_translation,
+                                "ext_reverse_translation": ext_reverse_translation,
                                 "abstractive_summary": abstractive_summary,
                                 "extractive_summary": extractive_summary,
                             },
