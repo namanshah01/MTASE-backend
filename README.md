@@ -25,7 +25,7 @@ The objective of this project is to build a Multilingual Text Analyzer and Summa
 | API Endpoint | `POST: /api/summarise` |
 | :---         | :--- 
 | Input | Piece of text desired to be summarised |
-| Output | Meta data, Translated Text, Abstractive Summary, Extractive Summary and Keywords of original text blob |
+| Output | Meta data, Translated Text, Abstractive Summary, Extractive Summary and Keywords of original text |
 
 
 ### Tech Stack ###
