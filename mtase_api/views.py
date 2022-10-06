@@ -104,6 +104,63 @@ class SummariseAnalyseView(generics.GenericAPIView):
 
 
 
+class ExtractiveSummaryView(generics.GenericAPIView):
+
+    def post(self, request):
+
+        text = ""
+
+        if 'file' not in request.data:
+            text = request.data.get('text')
+        else:
+            serializer = FileSerializer(data=request.data)
+            
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+
+                record = File.objects.latest('timestamp')
+                filename = str(record.file)
+                txt_folder_path = Path(settings.MEDIA_ROOT)
+                file_to_read = txt_folder_path / filename
+
+                with open(file_to_read, encoding='utf8') as f:
+                    contents = f.read()
+                    text = contents
+
+                if os.path.exists(file_to_read):
+                    os.remove(file_to_read)
+                else:
+                    logging.warning("The file does not exist")
+
+        original_lang = iso639.to_name(detect(text))
+
+        translated_text = detect_and_translate(text, target_lang='en')
+        reverse_translation = ""
+        
+        keywords = []
+
+        if(translated_text == ""):
+            extractive_summary = extractive_summariser(text)
+        else:
+            extractive_summary = extractive_summariser(translated_text)
+            ext_reverse_translation = detect_and_translate(extractive_summary, target_lang=tran_lang)
+
+        text_len = len(text.split())
+        extractive_summary_len = len(extractive_summary.split())
+
+
+        return Response(
+                        {
+                            "text": {
+                                "text": text,
+                                "translated_text": translated_text,
+                                "ext_reverse_translation": ext_reverse_translation,
+                                "extractive_summary": extractive_summary,
+                            },
+                        }, status=status.HTTP_201_CREATED)
+
+
+
 class TestView(generics.GenericAPIView):
 
     def get(self, request):
